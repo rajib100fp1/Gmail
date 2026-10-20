@@ -1,0 +1,2236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" href="data:,">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global IPRN & Email Manager - Apple Liquid Glass</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
+
+    :root {
+      --bg: #0b0f19;
+      --glass-bg: rgba(255, 255, 255, 0.04);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-shine: rgba(255, 255, 255, 0.15);
+      --apple-blue: #2997ff;
+      --apple-green: #30d158;
+      --apple-red: #ff3b30;
+      --apple-amber: #ff9f0a;
+      --apple-purple: #bf5af2;
+      --text: #f5f5f7;
+      --muted: #86868b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(41, 151, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.08) 0%, transparent 40%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 980px;
+      padding: 26px;
+      box-shadow: 
+        0 4px 30px rgba(0, 0, 0, 0.4),
+        inset 0 1px 1px var(--glass-shine);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+    }
+
+    .header-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+
+    p.subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    /* Tab Switcher */
+    .tab-group {
+      display: flex;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px;
+      border-radius: 14px;
+      border: 1px solid var(--glass-border);
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      background: transparent;
+      border: none;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: none;
+    }
+
+    .tab-btn.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      padding: 12px 14px;
+      outline: none;
+      resize: vertical;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    textarea:focus {
+      border-color: var(--apple-blue);
+      box-shadow: 0 0 0 3px rgba(41, 151, 255, 0.2), inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .btn-group {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    button {
+      padding: 11px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    button:active { transform: scale(0.99); }
+
+    button.btn-process { background: var(--apple-blue); border: none; }
+    button.btn-process:hover { background: #47a6ff; }
+    button.btn-process-email { background: var(--apple-green); border: none; color: #000; font-weight: 600; }
+    button.btn-process-email:hover { background: #34e060; }
+    button.btn-delete-all { color: var(--apple-red); border-color: rgba(255, 59, 48, 0.2); }
+    button.btn-delete-all:hover { background: rgba(255, 59, 48, 0.1); border-color: var(--apple-red); }
+
+    .btn-delete-cat {
+      padding: 4px 8px;
+      font-size: 11px;
+      background: rgba(255, 59, 48, 0.12);
+      border: 1px solid rgba(255, 59, 48, 0.25);
+      color: var(--apple-red);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: none;
+    }
+
+    .btn-delete-cat:hover {
+      background: rgba(255, 59, 48, 0.3);
+      color: #fff;
+      border-color: var(--apple-red);
+    }
+
+    .welcome-screen {
+      margin-top: 18px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px dashed var(--glass-border);
+      border-radius: 16px;
+      padding: 30px 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .welcome-icon {
+      font-size: 36px;
+      margin-bottom: 10px;
+      opacity: 0.8;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+    }
+
+    .welcome-screen h2 {
+      font-size: 16px;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .welcome-screen p { font-size: 12px; color: var(--muted); }
+
+    .result-section {
+      margin-top: 18px;
+      display: none;
+      animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .result-header {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
+    }
+
+    .category-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-height: 450px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .category-group {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 14px;
+      backdrop-filter: blur(10px);
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .category-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .category-flag {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 18px;
+    }
+
+    .category-flag img {
+      width: 22px;
+      height: 16px;
+      object-fit: contain;
+      border-radius: 3px;
+    }
+
+    .category-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .category-count {
+      font-size: 11px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+
+    .badge-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 11px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1), inset 0 1px 0px rgba(255,255,255,0.05);
+      transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .badge-card:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .badge-card.is-iprn {
+      border-color: rgba(255, 59, 48, 0.25);
+      background: linear-gradient(135deg, rgba(255, 59, 48, 0.03), rgba(255, 255, 255, 0.01));
+    }
+
+    .badge-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .badge-flag-name {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-flag-name img {
+      width: 16px;
+      height: 12px;
+      object-fit: contain;
+      border-radius: 2px;
+    }
+
+    .badge-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      word-break: break-all;
+    }
+
+    .badge-provider {
+      font-size: 10px;
+      color: var(--apple-blue);
+      background: rgba(41, 151, 255, 0.1);
+      padding: 2px 7px;
+      border-radius: 6px;
+      align-self: flex-start;
+      font-weight: 500;
+    }
+
+    .badge-provider.email-tag {
+      color: var(--apple-green);
+      background: rgba(48, 209, 88, 0.1);
+    }
+
+    .badge-provider.iprn-tag {
+      color: var(--apple-red);
+      background: rgba(255, 59, 48, 0.1);
+    }
+
+    .badge-card.removing {
+      animation: scaleOut 0.2s ease forwards;
+    }
+
+    .custom-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 12px;
+      padding: 10px 14px;
+      outline: none;
+      margin-bottom: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .custom-input:focus {
+      border-color: var(--apple-blue);
+      box-shadow: 0 0 0 3px rgba(41, 151, 255, 0.2);
+    }
+
+    .suggestion-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .suggestion-label {
+      font-size: 11px;
+      color: var(--muted);
+      width: 100%;
+      margin-bottom: 2px;
+    }
+
+    .suggestion-chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 5px 10px;
+      font-size: 11px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .suggestion-chip img {
+      width: 14px;
+      height: 14px;
+      object-fit: contain;
+      border-radius: 3px;
+    }
+
+    .suggestion-chip:hover {
+      background: rgba(41, 151, 255, 0.15);
+      color: #fff;
+      border-color: rgba(41, 151, 255, 0.4);
+    }
+
+    .suggestion-chip.active {
+      background: var(--apple-blue);
+      color: #fff;
+      border-color: var(--apple-blue);
+      box-shadow: 0 2px 8px rgba(41, 151, 255, 0.3);
+    }
+
+    .category-pills-wrapper {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 14px;
+      scrollbar-width: thin;
+    }
+
+    .category-pill-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 6px 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .category-pill-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .category-pill-btn.active {
+      background: var(--apple-blue);
+      color: #fff;
+      border-color: var(--apple-blue);
+    }
+
+    .category-pill-count {
+      font-size: 10px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2px 6px;
+      border-radius: 10px;
+    }
+
+    /* GMAIL LIVE WEB SYNC - COMPACT DESIGN FOR EMAIL TAB */
+    .gmail-sync-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);
+    }
+
+    .gmail-sync-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .gmail-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .gmail-status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      font-size: 11px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--apple-amber);
+      box-shadow: 0 0 8px var(--apple-amber);
+      animation: pulse 2s infinite;
+    }
+
+    .pulse-dot.connected {
+      background: var(--apple-green);
+      box-shadow: 0 0 8px var(--apple-green);
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    .gmail-inputs-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .gmail-input {
+      flex: 1;
+      min-width: 220px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      outline: none;
+    }
+
+    .gmail-input:focus {
+      border-color: var(--apple-blue);
+    }
+
+    .gmail-feed-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .compact-feed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 240px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .compact-live-card {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .compact-live-card:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .compact-sender {
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+
+    .compact-time {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .compact-otp-badge {
+      background: rgba(48, 209, 88, 0.15);
+      border: 1px solid rgba(48, 209, 88, 0.4);
+      color: var(--apple-green);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 10px rgba(48, 209, 88, 0.15);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .compact-otp-badge:hover {
+      background: var(--apple-green);
+      color: #000;
+      box-shadow: 0 0 14px rgba(48, 209, 88, 0.4);
+    }
+
+    .compact-otp-badge.locked {
+      background: rgba(255, 159, 10, 0.15);
+      border-color: rgba(255, 159, 10, 0.4);
+      color: var(--apple-amber);
+    }
+
+    .compact-otp-badge.locked:hover {
+      background: var(--apple-amber);
+      color: #000;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scaleOut {
+      to { opacity: 0; transform: scale(0.9); }
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--glass-border);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1000;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: rgba(22, 27, 38, 0.95);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 24px;
+      width: 90%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px var(--glass-shine);
+      transform: scale(0.9);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .modal-card h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .modal-card p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .modal-btn {
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 10px;
+      border: 1px solid var(--glass-border);
+      cursor: pointer;
+    }
+
+    .modal-btn.cancel {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+    }
+
+    .modal-btn.cancel:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .modal-btn.confirm-delete {
+      background: var(--apple-red);
+      color: #fff;
+      border: none;
+    }
+
+    .modal-btn.confirm-delete:hover {
+      background: #ff453a;
+    }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4GauXTOR2HzucwI0iqN1dxYqkAtYy8yE",
+      authDomain: "power-earn-29f39.firebaseapp.com",
+      databaseURL: "https://power-earn-29f39.firebaseio.com",
+      projectId: "power-earn-29f39",
+      storageBucket: "power-earn-29f39.firebasestorage.app",
+      messagingSenderId: "973156585955",
+      appId: "1:973156585955:web:429203dc4fbe644b0150d6"
+    };
+
+    let app, db, dbRefPhone, dbRefEmail, dbRefGmailConfig;
+    try {
+      app = initializeApp(firebaseConfig);
+      db = getDatabase(app);
+      dbRefPhone = ref(db, 'shared_numbers');
+      dbRefEmail = ref(db, 'shared_emails');
+      dbRefGmailConfig = ref(db, 'gmail_config');
+    } catch (e) {
+      console.error("Firebase init error:", e);
+    }
+
+    // ============================================================
+    // LOCAL GMAIL OTP CENTER
+    // Netlify frontend -> local Flask backend
+    // ============================================================
+
+    const BACKEND_URL = "http://127.0.0.1:5000";
+
+    let liveEmails = [];
+    let eventSource = null;
+    let otpTimers = new Map();
+    let pendingOtpToCopy = null;
+    let backendCheckTimer = null;
+    let otpSessionId = localStorage.getItem('powerEarnOtpSessionId') || '';
+
+    async function ensureOtpSession() {
+      let sid = otpSessionId || localStorage.getItem('powerEarnOtpSessionId') || null;
+      const url = sid
+        ? `${BACKEND_URL}/api/session/ensure?session_id=${encodeURIComponent(sid)}`
+        : `${BACKEND_URL}/api/session/ensure`;
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Backend session error: ${res.status}`);
+      const data = await res.json();
+      if (!data.session_id) throw new Error('No session_id returned');
+      otpSessionId = data.session_id;
+      localStorage.setItem('powerEarnOtpSessionId', otpSessionId);
+      return otpSessionId;
+    }
+
+    function isOtpUnlocked() {
+      return sessionStorage.getItem('otp_unlocked') === 'true';
+    }
+
+    window.openPasswordModal = function(otpToCopy = null) {
+      pendingOtpToCopy = otpToCopy;
+      document.getElementById('otpPasswordInput').value = '';
+      document.getElementById('passwordModal').classList.add('active');
+      setTimeout(() => document.getElementById('otpPasswordInput').focus(), 100);
+    };
+
+    window.closePasswordModal = function() {
+      document.getElementById('passwordModal').classList.remove('active');
+      pendingOtpToCopy = null;
+    };
+
+    window.verifyOtpPassword = function() {
+      const pass = document.getElementById('otpPasswordInput').value;
+
+      if (pass === 'rajib100') {
+        sessionStorage.setItem('otp_unlocked', 'true');
+        const pending = pendingOtpToCopy;
+
+        closePasswordModal();
+        showToast('🔓 OTP Unlocked successfully!');
+        renderCompactGmailFeed();
+
+        if (pending) {
+          copyText(pending);
+        }
+      } else {
+        showToast('Incorrect password!', true);
+      }
+    };
+
+    function setGmailStatus(connected, text) {
+      const dot = document.getElementById('gmailStatusDot');
+      const status = document.getElementById('gmailStatusText');
+      const button = document.getElementById('connectBtnText');
+
+      if (dot) {
+        dot.className = connected ? 'pulse-dot connected' : 'pulse-dot';
+      }
+
+      if (status) {
+        status.textContent = text;
+      }
+
+      if (button) {
+        button.textContent = connected
+          ? '✅ Connected'
+          : '🔑 Connect Gmail';
+      }
+    }
+
+    async function checkLocalBackend() {
+      try {
+        const response = await fetch(
+          `${BACKEND_URL}/health`,
+          {
+            method: 'GET',
+            cache: 'no-store'
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Backend HTTP ${response.status}`);
+        }
+
+        return true;
+
+      } catch (err) {
+        console.error('Local backend check failed:', err);
+        setGmailStatus(false, 'Local Backend Unavailable');
+        return false;
+      }
+    }
+
+    async function getBackendStatus() {
+      try {
+        const response = await fetch(
+          `${BACKEND_URL}/api/status?session_id=${encodeURIComponent(otpSessionId)}`,
+          {
+            method: 'GET',
+            cache: 'no-store'
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Status HTTP ${response.status}`);
+        }
+
+        return await response.json();
+
+      } catch (err) {
+        console.error('Backend status error:', err);
+        return null;
+      }
+    }
+
+    function clearOtpTimers() {
+      for (const timer of otpTimers.values()) {
+        clearInterval(timer);
+      }
+
+      otpTimers.clear();
+    }
+
+    function startOtpTimer(mail) {
+      if (!mail || !mail.id) return;
+
+      if (otpTimers.has(mail.id)) {
+        clearInterval(otpTimers.get(mail.id));
+      }
+
+      const expiresAt = Number(mail.expires_at || 0);
+
+      if (!expiresAt) return;
+
+      const timer = setInterval(() => {
+        const remaining = Math.max(
+          0,
+          Math.ceil(expiresAt - (Date.now() / 1000))
+        );
+
+        mail.remainingSeconds = remaining;
+        renderCompactGmailFeed();
+
+        if (remaining <= 0) {
+          clearInterval(timer);
+          otpTimers.delete(mail.id);
+
+          liveEmails = liveEmails.filter(
+            item => item.id !== mail.id
+          );
+
+          renderCompactGmailFeed();
+        }
+      }, 1000);
+
+      otpTimers.set(mail.id, timer);
+    }
+
+    function addLiveOtp(otpData) {
+      if (!otpData || !otpData.otp) return;
+
+      const item = {
+        id: otpData.id || `otp-${Date.now()}`,
+        sender: otpData.sender || 'Unknown Sender',
+        senderEmail: otpData.sender_email || '',
+        subject: otpData.subject || '(No Subject)',
+        otp: otpData.otp,
+        created_at: Number(otpData.created_at || (Date.now() / 1000)),
+        expires_at: Number(
+          otpData.expires_at ||
+          ((Date.now() / 1000) + 300)
+        )
+      };
+
+      // Same Gmail message should not create duplicate cards.
+      liveEmails = liveEmails.filter(
+        existing => existing.id !== item.id
+      );
+
+      // Keep newest first.
+      liveEmails.unshift(item);
+
+      // Keep a reasonable number of active cards.
+      liveEmails = liveEmails.slice(0, 20);
+
+      startOtpTimer(item);
+      renderCompactGmailFeed();
+
+      // Browser notification sound.
+      playOtpNotificationSound();
+    }
+
+    function removeOtp(otpId) {
+      if (!otpId) return;
+
+      liveEmails = liveEmails.filter(
+        item => item.id !== otpId
+      );
+
+      if (otpTimers.has(otpId)) {
+        clearInterval(otpTimers.get(otpId));
+        otpTimers.delete(otpId);
+      }
+
+      renderCompactGmailFeed();
+    }
+
+    function connectSSE() {
+      if (eventSource) {
+        try {
+          eventSource.close();
+        } catch (e) {}
+      }
+
+      eventSource = new EventSource(
+        `${BACKEND_URL}/events?session_id=${encodeURIComponent(otpSessionId)}`
+      );
+
+      eventSource.addEventListener(
+        'connected',
+        () => {
+          console.log('Gmail OTP SSE connected');
+        }
+      );
+
+      eventSource.addEventListener(
+        'new_otp',
+        event => {
+          try {
+            const data = JSON.parse(event.data);
+            addLiveOtp(data);
+          } catch (err) {
+            console.error(
+              'Invalid new_otp event:',
+              err
+            );
+          }
+        }
+      );
+
+      eventSource.addEventListener(
+        'otp_expired',
+        event => {
+          try {
+            const data = JSON.parse(event.data);
+            removeOtp(data.id);
+          } catch (err) {
+            console.error(
+              'Invalid otp_expired event:',
+              err
+            );
+          }
+        }
+      );
+
+      eventSource.onerror = () => {
+        console.warn(
+          'Gmail OTP SSE disconnected; browser will retry automatically.'
+        );
+      };
+    }
+
+    function playOtpNotificationSound() {
+      try {
+        const AudioContextClass =
+          window.AudioContext ||
+          window.webkitAudioContext;
+
+        if (!AudioContextClass) return;
+
+        const ctx = new AudioContextClass();
+
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        oscillator.type = 'sine';
+        oscillator.frequency.value = 880;
+
+        gain.gain.setValueAtTime(
+          0.0001,
+          ctx.currentTime
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+          0.08,
+          ctx.currentTime + 0.02
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+          0.0001,
+          ctx.currentTime + 0.25
+        );
+
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+
+        oscillator.start();
+        oscillator.stop(
+          ctx.currentTime + 0.25
+        );
+
+      } catch (e) {
+        // Browsers may block autoplay audio until user interaction.
+      }
+    }
+
+    window.saveAndConnectGmail = async function() {
+      const ok = await checkLocalBackend();
+
+      if (!ok) {
+        showToast(
+          'Local backend unavailable. Start app.py first.',
+          true
+        );
+        return;
+      }
+
+      showToast(
+        'Opening Google Login...'
+      );
+
+      // OAuth is handled by Flask, NOT browser-side Google Identity Services.
+      await ensureOtpSession();
+      window.location.href =
+        `${BACKEND_URL}/login?session_id=${encodeURIComponent(otpSessionId)}`;
+    };
+
+    window.logoutGmail = async function() {
+      openConfirmModal(
+        'Logout Gmail?',
+        'This will disconnect the Gmail account from the local backend.',
+        async () => {
+          try {
+            await fetch(
+              `${BACKEND_URL}/api/logout`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: otpSessionId }),
+                cache: 'no-store'
+              }
+            );
+
+            clearOtpTimers();
+            liveEmails = [];
+
+            if (eventSource) {
+              eventSource.close();
+              eventSource = null;
+            }
+
+            setGmailStatus(
+              false,
+              'Disconnected'
+            );
+
+            renderCompactGmailFeed();
+
+            showToast(
+              'Gmail disconnected.'
+            );
+
+          } catch (err) {
+            console.error(
+              'Logout error:',
+              err
+            );
+
+            showToast(
+              'Failed to logout.',
+              true
+            );
+          }
+        }
+      );
+    };
+
+    window.fetchGmailMessages = async function() {
+      const ok = await checkLocalBackend();
+
+      if (!ok) {
+        showToast(
+          'Start local app.py first.',
+          true
+        );
+        return;
+      }
+
+      await ensureOtpSession();
+
+      // Hydrate the page from the backend immediately. This makes OTPs
+      // visible even if the scanner detected them before SSE connected.
+      try {
+        const otpResponse = await fetch(
+          `${BACKEND_URL}/api/otps?session_id=${encodeURIComponent(otpSessionId)}`,
+          { cache: 'no-store' }
+        );
+
+        if (otpResponse.ok) {
+          const otpData = await otpResponse.json();
+          if (Array.isArray(otpData.otps)) {
+            clearOtpTimers();
+            liveEmails = otpData.otps.map(item => ({
+              ...item,
+              created_at: Number(item.created_at || (Date.now() / 1000)),
+              expires_at: Number(item.expires_at || ((Date.now() / 1000) + 300))
+            }));
+            liveEmails.forEach(startOtpTimer);
+            renderCompactGmailFeed();
+          }
+        }
+      } catch (err) {
+        console.warn('Could not hydrate active OTPs:', err);
+      }
+
+      const status =
+        await getBackendStatus();
+
+      if (!status) return;
+
+      if (status.gmail_connected) {
+        setGmailStatus(
+          true,
+          'Gmail Live Connected'
+        );
+
+        if (!eventSource) {
+          connectSSE();
+        }
+      } else {
+        setGmailStatus(
+          false,
+          'Click Connect Gmail'
+        );
+      }
+    };
+
+    window.renderCompactGmailFeed = function() {
+      const container =
+        document.getElementById(
+          'compactGmailList'
+        );
+
+      if (!container) return;
+
+      if (liveEmails.length === 0) {
+        container.innerHTML = `
+          <div style="
+            text-align:center;
+            padding:15px;
+            color:var(--muted);
+            font-size:12px;
+          ">
+            No active OTP detected
+          </div>
+        `;
+        return;
+      }
+
+      const unlocked =
+        isOtpUnlocked();
+
+      container.innerHTML =
+        liveEmails.map(mail => {
+
+          const remaining =
+            Math.max(
+              0,
+              Number(
+                mail.remainingSeconds ??
+                Math.ceil(
+                  Number(mail.expires_at) -
+                  (Date.now() / 1000)
+                )
+              )
+            );
+
+          const minutes =
+            Math.floor(
+              remaining / 60
+            );
+
+          const seconds =
+            String(
+              remaining % 60
+            ).padStart(2, '0');
+
+          const senderText =
+            escapeHtml(
+              mail.sender || 'Unknown Sender'
+            );
+
+          const subjectText =
+            escapeHtml(
+              mail.subject || '(No Subject)'
+            );
+
+          const otp =
+            escapeHtml(
+              String(mail.otp || '')
+            );
+
+          return `
+            <div class="compact-live-card">
+              <div style="
+                min-width:0;
+                flex:1;
+              ">
+                <div class="compact-sender">
+                  <span style="font-size:14px;">✉️</span>
+                  <span>${senderText}</span>
+                </div>
+
+                <div style="
+                  font-size:10px;
+                  color:var(--muted);
+                  margin-top:3px;
+                  overflow:hidden;
+                  text-overflow:ellipsis;
+                  white-space:nowrap;
+                ">
+                  ${subjectText}
+                </div>
+              </div>
+
+              <div class="compact-time">
+                ${minutes}:${seconds}
+              </div>
+
+              <div>
+                ${
+                  unlocked
+                  ? `
+                    <div
+                      class="compact-otp-badge"
+                      onclick="copyOtpWithCheck('${otp}')"
+                      title="Click to copy OTP"
+                    >
+                      🔑 ${otp}
+                    </div>
+                  `
+                  : `
+                    <div
+                      class="compact-otp-badge locked"
+                      onclick="openPasswordModal('${otp}')"
+                      title="Click to unlock OTP"
+                    >
+                      🔒 Unlock
+                    </div>
+                  `
+                }
+              </div>
+            </div>
+          `;
+        }).join('');
+    };
+
+    window.copyOtpWithCheck = function(otp) {
+      if (isOtpUnlocked()) {
+        copyText(otp);
+      } else {
+        openPasswordModal(otp);
+      }
+    };
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    async function initializeLocalGmail() {
+      const ok =
+        await checkLocalBackend();
+
+      if (!ok) {
+        return;
+      }
+
+      const callbackSession = new URLSearchParams(location.search).get('session_id');
+      if (callbackSession) {
+        otpSessionId = callbackSession;
+        localStorage.setItem('powerEarnOtpSessionId', otpSessionId);
+        history.replaceState({}, document.title, location.pathname + location.hash);
+      }
+
+      await ensureOtpSession();
+      const status =
+        await getBackendStatus();
+
+      if (status?.gmail_connected) {
+        setGmailStatus(
+          true,
+          'Gmail Live Connected'
+        );
+
+        connectSSE();
+        await fetchGmailMessages();
+
+      } else {
+        setGmailStatus(
+          false,
+          'Click Connect Gmail'
+        );
+      }
+    }
+
+    const MULTI_COUNTRY_MAP = {
+      '234': { n: 'Nigeria', f: '🇳🇬', c: {'803':'MTN','806':'MTN','813':'MTN','816':'MTN','903':'MTN','906':'MTN','703':'MTN','706':'MTN','805':'Glo','807':'Glo','811':'Glo','815':'Glo','905':'Glo','802':'Airtel','808':'Airtel','812':'Airtel','902':'Airtel','907':'Airtel','701':'Airtel','809':'9mobile','817':'9mobile','818':'9mobile','908':'9mobile','909':'9mobile'} },
+      '254': { n: 'Kenya', f: '🇰🇪', c: {'70':'Safaricom','71':'Safaricom','72':'Safaricom','79':'Safaricom','110':'Safaricom','111':'Safaricom','73':'Airtel','78':'Airtel','100':'Airtel','101':'Airtel','77':'Telkom','76':'Equitel'} },
+      '27':  { n: 'South Africa', f: '🇿🇦', c: {'82':'Vodacom','72':'Vodacom','76':'Vodacom','79':'Vodacom','83':'MTN','73':'MTN','78':'MTN','84':'Cell C','74':'Cell C','81':'Telkom','61':'Telkom'} },
+      '233': { n: 'Ghana', f: '🇬🇭', c: {'24':'MTN','54':'MTN','55':'MTN','59':'MTN','20':'Vodafone','50':'Vodafone','27':'AirtelTigo','57':'AirtelTigo','26':'AirtelTigo'} },
+      '212': { n: 'Morocco', f: '🇲🇦', c: {'6':'Maroc Telecom','7':'Maroc Telecom','61':'Inwi','62':'Orange','63':'Inwi','64':'Orange','65':'Maroc Telecom','66':'Maroc Telecom','67':'Maroc Telecom'} },
+      '213': { n: 'Algeria', f: '🇩🇿', c: {'6':'Mobilis','5':'Ooredoo','7':'Djezzy'} },
+      '216': { n: 'Tunisia', f: '🇹🇳', c: {'2':'Tunisie Telecom','9':'Tunisie Telecom','5':'Orange','4':'Ooredoo'} },
+      '218': { n: 'Libya', f: '🇱🇾', c: {'91':'Al-Madar','92':'Libyana','94':'Libyana','95':'Al-Madar'} },
+      '251': { n: 'Ethiopia', f: '🇪🇹', c: {'9':'Ethio Telecom','7':'Safaricom Ethiopia'} },
+      '255': { n: 'Tanzania', f: '🇹🇿', c: {'75':'Vodacom','76':'Vodacom','71':'Tigo','67':'Tigo','78':'Airtel','68':'Airtel','77':'Halotel'} },
+      '256': { n: 'Uganda', f: '🇺🇬', c: {'77':'MTN','78':'MTN','76':'MTN','70':'Airtel','75':'Airtel','79':'Lycamobile'} },
+      '244': { n: 'Angola', f: '🇦🇴', c: {'92':'Unitel','93':'Unitel','94':'Unitel','91':'Movicel','99':'Movicel','95':'Africell'} },
+      '243': { n: 'DR Congo', f: '🇨🇩', c: {'81':'Vodacom','82':'Vodacom','99':'Airtel','97':'Airtel','89':'Orange','84':'Orange','80':'Africell'} },
+      '263': { n: 'Zimbabwe', f: '🇿🇼', c: {'77':'Econet','78':'Econet','71':'NetOne','73':'Telecel'} },
+      '221': { n: 'Senegal', f: '🇸🇳', c: {'77':'Orange','78':'Orange','76':'Free','70':'Expresso'} },
+      '225': { n: 'Ivory Coast', f: '🇨🇮', c: {'07':'Orange','05':'MTN','01':'Moov'} },
+      '237': { n: 'Cameroon', f: '🇨🇲', c: {'67':'MTN','68':'MTN','69':'Orange','655':'Orange','66':'Nexttel'} },
+      '880': { n: 'Bangladesh', f: '🇧🇩', c: {'17':'Grameenphone','13':'Grameenphone','18':'Robi','16':'Airtel','19':'Banglalink','14':'Banglalink','15':'Teletalk'} },
+      '91':  { n: 'India', f: '🇮🇳', c: {'9':'Jio / Airtel','8':'Vodafone Idea','7':'BSNL','6':'Jio Mobile'} },
+      '92':  { n: 'Pakistan', f: '🇵🇰', c: {'30':'Mobilink','31':'Zong','33':'Ufone','34':'Telenor'} },
+      '966': { n: 'Saudi Arabia', f: '🇸🇦', c: {'50':'STC','53':'STC','55':'STC','54':'Mobily','56':'Mobily','59':'Zain'} },
+      '971': { n: 'UAE', f: '🇦🇪', c: {'50':'Etisalat','55':'du','56':'Etisalat','52':'du'} },
+      '60':  { n: 'Malaysia', f: '🇲🇾', c: {'12':'Maxis','19':'Celcom','14':'Digi','11':'U Mobile'} },
+      '62':  { n: 'Indonesia', f: '🇮🇩', c: {'81':'Telkomsel','85':'Indosat','87':'XL Axiata','89':'Three'} },
+      '1':   { n: 'USA/Canada', f: '🇺🇸', c: {'201':'AT&T','212':'Verizon','312':'T-Mobile','415':'Sprint','650':'Google Fi'} },
+      '44':  { n: 'United Kingdom', f: '🇬🇧', c: {'71':'EE','72':'O2','73':'Vodafone','74':'Three','77':'EE','78':'Vodafone','79':'Three'} }
+    };
+
+    const WORLD_FALLBACK_CODES = {
+      "211":"South Sudan|🇸🇸","220":"Gambia|🇬🇲","222":"Mauritania|🇲🇷","223":"Mali|🇲🇱","224":"Guinea|🇬🇳","226":"Burkina Faso|🇧🇫","227":"Niger|🇳🇪","228":"Togo|🇹🇬","229":"Benin|🇧🇯","230":"Mauritius|🇲🇺","231":"Liberia|🇱🇷","232":"Sierra Leone|🇸🇱","235":"Chad|🇹🇩","236":"Central African Rep.|🇨🇫","238":"Cape Verde|🇨🇻","239":"Sao Tome|🇸🇹","240":"Equatorial Guinea|🇬🇶","241":"Gabon|🇬🇦","242":"Congo|🇨🇬","245":"Guinea-Bissau|🇬🇼","248":"Seychelles|🇸🇨","250":"Rwanda|🇷🇼","252":"Somalia|🇸🇴","253":"Djibouti|🇩🇯","257":"Burundi|🇧🇮","258":"Mozambique|🇲🇿","260":"Zambia|🇿🇲","261":"Madagascar|🇲🇬","262":"Reunion|🇷🇪","264":"Namibia|🇳🇦","265":"Malawi|🇲🇼","266":"Lesotho|🇱🇸","267":"Botswana|🇧🇼","268":"Eswatini|🇸🇿","269":"Comoros|🇰🇲","291":"Eritrea|🇪🇷","20":"Egypt|🇪🇬","27":"South Africa|🇿🇦","30":"Greece|🇬🇷","31":"Netherlands|🇳🇱","32":"Belgium|🇧🇪","33":"France|🇫🇷","34":"Spain|🇪🇸","36":"Hungary|🇭🇺","39":"Italy|🇮🇹","40":"Romania|🇷🇴","41":"Switzerland|🇨🇭","43":"Austria|🇦🇹","45":"Denmark|🇩🇰","46":"Sweden|🇸🇪","47":"Norway|🇳🇴","48":"Poland|🇵🇱","49":"Germany|🇩🇪","51":"Peru|🇵🇪","52":"Mexico|🇲🇽","54":"Argentina|🇦🇷","55":"Brazil|🇧🇷","56":"Chile|🇨🇱","57":"Colombia|🇨🇴","58":"Venezuela|🇻🇪","61":"Australia|🇦🇺","63":"Philippines|🇵🇭","64":"New Zealand|🇳🇿","65":"Singapore|🇸🇬","66":"Thailand|🇹🇭","81":"Japan|🇯🇵","82":"South Korea|🇰🇷","84":"Vietnam|🇻🇳","86":"China|🇨🇳","90":"Turkey|🇹🇷","93":"Afghanistan|🇦🇫","94":"Sri Lanka|🇱🇰","95":"Myanmar|🇲🇲","98":"Iran|🇮🇷","380":"Ukraine|🇺🇦","420":"Czech Republic|🇨🇿","960":"Maldives|🇲🇻","961":"Lebanon|🇱🇧","962":"Jordan|🇸🇾","963":"Syria|🇸🇾","964":"Iraq|🇮🇶","965":"Kuwait|🇰🇼","968":"Oman|🇴🇲","972":"Israel|🇮🇱","973":"Bahrain|🇧🇭","974":"Qatar|🇶🇦","975":"Bhutan|🇧🇹","977":"Nepal|🇳🇵","992":"Tajikistan|🇹🇯","998":"Uzbekistan|UZ"
+    };
+
+    const PLATFORM_LOGOS = {
+      'whatsapp': 'https://www.google.com/s2/favicons?domain=whatsapp.com&sz=64',
+      'telegram': 'https://www.google.com/s2/favicons?domain=telegram.org&sz=64',
+      'facebook': 'https://www.google.com/s2/favicons?domain=facebook.com&sz=64',
+      'instagram': 'https://www.google.com/s2/favicons?domain=instagram.com&sz=64',
+      'tiktok': 'https://www.google.com/s2/favicons?domain=tiktok.com&sz=64',
+      'snapchat': 'https://www.google.com/s2/favicons?domain=snapchat.com&sz=64',
+      'imo': 'https://www.google.com/s2/favicons?domain=imo.im&sz=64',
+      'twitter': 'https://www.google.com/s2/favicons?domain=x.com&sz=64',
+      'google': 'https://www.google.com/s2/favicons?domain=google.com&sz=64',
+      'binance': 'https://www.google.com/s2/favicons?domain=binance.com&sz=64',
+      'bybit': 'https://www.google.com/s2/favicons?domain=bybit.com&sz=64',
+      'kucoin': 'https://www.google.com/s2/favicons?domain=kucoin.com&sz=64',
+      'intra mirror': 'https://www.google.com/s2/favicons?domain=intramirror.com&sz=64',
+      'coinw': 'https://www.google.com/s2/favicons?domain=coinw.com&sz=64',
+      'bitmart': 'https://www.google.com/s2/favicons?domain=bitmart.com&sz=64',
+      'casino': '🎰',
+      'rejsebillet': 'https://www.google.com/s2/favicons?domain=rejsebillet.dk&sz=64',
+      'netflix': 'https://www.google.com/s2/favicons?domain=netflix.com&sz=64',
+      'tinder': 'https://www.google.com/s2/favicons?domain=tinder.com&sz=64',
+      'discord': 'https://www.google.com/s2/favicons?domain=discord.com&sz=64',
+      'viber': 'https://www.google.com/s2/favicons?domain=viber.com&sz=64',
+      'line': 'https://www.google.com/s2/favicons?domain=line.me&sz=64',
+      'amazon': 'https://www.google.com/s2/favicons?domain=amazon.com&sz=64',
+      'paypal': 'https://www.google.com/s2/favicons?domain=paypal.com&sz=64'
+    };
+
+    function getTwemojiUrl(flagEmoji) {
+      try {
+        if (!flagEmoji) return '';
+        const codePoints = [...flagEmoji].map(c => c.codePointAt(0).toString(16)).join('-');
+        return `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/${codePoints}.png`;
+      } catch (e) { return ''; }
+    }
+
+    function getCategoryIconHtml(catName, flagEmoji) {
+      if (!catName) return '';
+      const lower = catName.trim().toLowerCase();
+      if (PLATFORM_LOGOS[lower]) {
+        const logo = PLATFORM_LOGOS[lower];
+        if (logo.startsWith('http')) {
+          return `<img src="${logo}" style="width:16px;height:16px;object-fit:contain;border-radius:3px;" alt="${catName}" onerror="this.style.display='none'">`;
+        } else {
+          return `<span style="font-size:14px;">${logo}</span>`;
+        }
+      }
+      const imgUrl = getTwemojiUrl(flagEmoji);
+      return imgUrl ? `<img src="${imgUrl}" style="width:16px;height:12px;object-fit:contain;border-radius:2px;" alt="">` : `<span>${flagEmoji || '🌐'}</span>`;
+    }
+
+    function analyzeNumberAfricanReady(line) {
+      let num = line.replace(/[^0-9]/g, '');
+      if (!num) return null;
+      if (num.startsWith('0')) num = num.substring(1);
+
+      let countryName = 'Global Net';
+      let countryFlag = '🌐';
+      let localNumber = num;
+      let matchedCode = '';
+      let carrierName = '';
+
+      const prefixes = Object.keys(MULTI_COUNTRY_MAP).sort((a, b) => b.length - a.length);
+      for (let p of prefixes) {
+        if (num.startsWith(p) && (num.length - p.length) >= 5) {
+          countryName = MULTI_COUNTRY_MAP[p].n;
+          countryFlag = MULTI_COUNTRY_MAP[p].f;
+          matchedCode = p;
+          localNumber = num.substring(p.length);
+          if (localNumber.startsWith('0')) localNumber = localNumber.substring(1);
+
+          const carrierKeys = Object.keys(MULTI_COUNTRY_MAP[p].c).sort((a, b) => b.length - a.length);
+          for (let sub of carrierKeys) {
+            if (localNumber.startsWith(sub)) {
+              carrierName = MULTI_COUNTRY_MAP[p].c[sub];
+              break;
+            }
+          }
+          break;
+        }
+      }
+
+      if (!matchedCode) {
+        const fallbackCodes = Object.keys(WORLD_FALLBACK_CODES).sort((a, b) => b.length - a.length);
+        for (let fc of fallbackCodes) {
+          if (num.startsWith(fc) && (num.length - fc.length) >= 5) {
+            const data = WORLD_FALLBACK_CODES[fc].split('|');
+            countryName = data[0];
+            countryFlag = data[1];
+            matchedCode = fc;
+            localNumber = num.substring(fc.length);
+            if (localNumber.startsWith('0')) localNumber = localNumber.substring(1);
+            break;
+          }
+        }
+      }
+
+      if (!matchedCode) {
+        if (num.length >= 11) { matchedCode = num.substring(0,3); localNumber = num.substring(3); }
+        else { matchedCode = num.substring(0,2); localNumber = num.substring(2); }
+      }
+
+      if (localNumber.length >= 5 && localNumber.length <= 15) {
+        let isIprn = false;
+        if (matchedCode === '44' && localNumber.startsWith('9')) isIprn = true;
+        else if (matchedCode === '1' && localNumber.startsWith('900')) isIprn = true;
+        else if (localNumber.startsWith('900') || localNumber.startsWith('1900') || localNumber.startsWith('888') || localNumber.startsWith('999')) isIprn = true;
+
+        if (isIprn) {
+          carrierName = '🚨 IPRN / Premium';
+        } else if (!carrierName) {
+          const firstDigit = localNumber.charAt(0);
+          if (['7','8','9'].includes(firstDigit)) {
+            carrierName = `${countryName} Mobile`;
+          } else {
+            carrierName = `${countryName} Fixed`;
+          }
+        }
+
+        const rangeCode = localNumber.length >= 4 ? localNumber.substring(0, 4) : localNumber;
+
+        return {
+          phoneNumber: matchedCode + localNumber,
+          localOnly: localNumber,
+          displayNumber: `+${matchedCode} ${localNumber}`,
+          country: countryName,
+          flag: countryFlag,
+          matchedCode: matchedCode,
+          range: rangeCode,
+          provider: carrierName,
+          isIprn: isIprn
+        };
+      }
+      return null;
+    }
+
+    let selectedCategoryKey = 'ALL';
+
+    window.processAndStoreNumbers = function() {
+      const input = document.getElementById('rawInputPhone').value;
+      const customCat = document.getElementById('customCatPhone').value.trim();
+      if (!input.trim()) return showToast('Input list empty!', true);
+
+      const rawLines = input.split(/[\n,;\s]+/);
+      const updates = {};
+      let addedCount = 0;
+
+      rawLines.forEach(line => {
+        const analyzed = analyzeNumberAfricanReady(line);
+        if (analyzed) {
+          if (customCat) {
+            analyzed.categoryName = customCat;
+          } else {
+            analyzed.categoryName = `${analyzed.country} - ${analyzed.range}`;
+          }
+          const newKey = push(dbRefPhone).key;
+          updates[newKey] = analyzed;
+          addedCount++;
+        }
+      });
+
+      if (addedCount > 0) {
+        update(dbRefPhone, updates).then(() => {
+          document.getElementById('rawInputPhone').value = '';
+          document.getElementById('customCatPhone').value = '';
+          showToast(`${addedCount} numbers synced to cloud!`);
+        }).catch((err) => {
+          console.error("Save error:", err);
+          showToast('Failed to save numbers', true);
+        });
+      } else {
+        showToast('No valid formats found!', true);
+      }
+    };
+
+    window.processAndStoreEmails = function() {
+      const input = document.getElementById('rawInputEmail').value;
+      if (!input.trim()) return showToast('Email list empty!', true);
+
+      const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+      const matches = input.match(emailRegex) || [];
+      const updates = {};
+      let addedCount = 0;
+
+      const uniqueEmails = Array.from(new Set(matches.map(e => e.trim().toLowerCase())));
+
+      uniqueEmails.forEach(clean => {
+        const parts = clean.split('@');
+        const domain = parts[1] || 'email.com';
+        const newKey = push(dbRefEmail).key;
+        updates[newKey] = {
+          email: clean,
+          domain: domain.toUpperCase(),
+          timestamp: Date.now()
+        };
+        addedCount++;
+      });
+
+      if (addedCount > 0) {
+        update(dbRefEmail, updates).then(() => {
+          document.getElementById('rawInputEmail').value = '';
+          showToast(`${addedCount} emails synced to cloud!`);
+        }).catch((err) => {
+          console.error("Email save error:", err);
+          showToast('Failed to save emails', true);
+        });
+      } else {
+        showToast('No valid emails found!', true);
+      }
+    };
+
+    if (dbRefPhone) {
+      onValue(dbRefPhone, (snapshot) => {
+        const container = document.getElementById('categoryContainer');
+        const pillsContainer = document.getElementById('categoryPillsWrapper');
+        const resultSection = document.getElementById('resultSectionPhone');
+        const welcomeScreen = document.getElementById('welcomeScreenPhone');
+
+        if (!container || !pillsContainer) return;
+        container.innerHTML = '';
+        pillsContainer.innerHTML = '';
+        const data = snapshot.val();
+
+        if (data) {
+          welcomeScreen.style.display = 'none';
+          resultSection.style.display = 'block';
+
+          const keys = Object.keys(data);
+          document.getElementById('statRemainingPhone').textContent = keys.length;
+
+          const categories = {};
+
+          keys.forEach(key => {
+            const record = data[key];
+            const catName = record.categoryName || `${record.country || 'Global'} - ${record.range || '0000'}`;
+
+            if (!categories[catName]) {
+              categories[catName] = {
+                catName: catName,
+                flag: record.flag || '🌐',
+                country: record.country || 'Global',
+                items: []
+              };
+            }
+            categories[catName].items.push({ key, record });
+          });
+
+          if (selectedCategoryKey !== 'ALL' && !categories[selectedCategoryKey]) {
+            selectedCategoryKey = 'ALL';
+          }
+
+          const catKeys = Object.keys(categories).sort();
+
+          const allPill = document.createElement('button');
+          allPill.className = `category-pill-btn ${selectedCategoryKey === 'ALL' ? 'active' : ''}`;
+          allPill.setAttribute('data-catkey', 'ALL');
+          allPill.innerHTML = `<span>🌐 All Numbers</span><span class="category-pill-count">${keys.length}</span>`;
+          allPill.onclick = () => {
+            selectedCategoryKey = 'ALL';
+            renderCategoryData(categories, container);
+            updatePillsActiveState(pillsContainer);
+          };
+          pillsContainer.appendChild(allPill);
+
+          catKeys.forEach(catKey => {
+            const group = categories[catKey];
+            const pill = document.createElement('button');
+            pill.className = `category-pill-btn ${selectedCategoryKey === catKey ? 'active' : ''}`;
+            pill.setAttribute('data-catkey', catKey);
+
+            const iconElement = getCategoryIconHtml(group.catName, group.flag);
+
+            pill.innerHTML = `<span>${iconElement} ${group.catName}</span><span class="category-pill-count">${group.items.length}</span>`;
+            pill.onclick = () => {
+              selectedCategoryKey = catKey;
+              renderCategoryData(categories, container);
+              updatePillsActiveState(pillsContainer);
+            };
+            pillsContainer.appendChild(pill);
+          });
+
+          renderCategoryData(categories, container);
+
+        } else {
+          selectedCategoryKey = 'ALL';
+          container.innerHTML = '';
+          pillsContainer.innerHTML = '';
+          resultSection.style.display = 'none';
+          welcomeScreen.style.display = 'block';
+          document.getElementById('statRemainingPhone').textContent = '0';
+        }
+      });
+    }
+
+    function updatePillsActiveState(pillsContainer) {
+      const pills = pillsContainer.querySelectorAll('.category-pill-btn');
+      pills.forEach(pill => {
+        const catKey = pill.getAttribute('data-catkey');
+        if (catKey === selectedCategoryKey) {
+          pill.classList.add('active');
+        } else {
+          pill.classList.remove('active');
+        }
+      });
+    }
+
+    function renderCategoryData(categories, container) {
+      container.innerHTML = '';
+      const catKeys = Object.keys(categories).sort();
+
+      catKeys.forEach(catKey => {
+        if (selectedCategoryKey !== 'ALL' && selectedCategoryKey !== catKey) {
+          return;
+        }
+
+        const group = categories[catKey];
+        const categoryGroupDiv = document.createElement('div');
+        categoryGroupDiv.className = 'category-group';
+
+        const iconElement = getCategoryIconHtml(group.catName, group.flag);
+        const itemKeys = group.items.map(i => i.key);
+
+        categoryGroupDiv.innerHTML = `
+          <div class="category-header">
+            <div class="category-title-wrap">
+              <div class="category-flag">${iconElement}</div>
+              <div class="category-name">
+                <span>${group.catName}</span>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="category-count">${group.items.length} ${group.items.length === 1 ? 'number' : 'numbers'}</div>
+              <button class="btn-delete-cat" title="Delete category">🗑️ Delete</button>
+            </div>
+          </div>
+          <div class="data-grid"></div>
+        `;
+
+        const delCatBtn = categoryGroupDiv.querySelector('.btn-delete-cat');
+        if (delCatBtn) {
+          delCatBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteCategoryItems(group.catName, itemKeys);
+          };
+        }
+
+        const grid = categoryGroupDiv.querySelector('.data-grid');
+
+        group.items.forEach(({ key, record }) => {
+          const card = document.createElement('div');
+          card.className = `badge-card ${record.isIprn ? 'is-iprn' : ''}`;
+
+          const itemImgUrl = getTwemojiUrl(record.flag || group.flag);
+          const itemFlagElement = itemImgUrl 
+            ? `<img src="${itemImgUrl}" alt="${record.country}">` 
+            : `<span>${record.flag || group.flag}</span>`;
+
+          card.innerHTML = `
+            <div class="badge-top">
+              <div class="badge-flag-name">
+                ${itemFlagElement}
+                <span>${record.country}</span>
+              </div>
+            </div>
+            <div class="badge-title">${record.displayNumber}</div>
+            <div class="badge-provider ${record.isIprn ? 'iprn-tag' : ''}">${record.provider}</div>
+          `;
+
+          card.onclick = () => handleItemClick('shared_numbers', key, record.localOnly, card);
+          grid.appendChild(card);
+        });
+
+        container.appendChild(categoryGroupDiv);
+      });
+    }
+
+    if (dbRefEmail) {
+      onValue(dbRefEmail, (snapshot) => {
+        const grid = document.getElementById('emailGrid');
+        const resultSection = document.getElementById('resultSectionEmail');
+        const welcomeScreen = document.getElementById('welcomeScreenEmail');
+
+        if (!grid) return;
+        grid.innerHTML = '';
+        const data = snapshot.val();
+
+        if (data) {
+          welcomeScreen.style.display = 'none';
+          resultSection.style.display = 'block';
+
+          const keys = Object.keys(data);
+          document.getElementById('statRemainingEmail').textContent = keys.length;
+
+          keys.forEach(key => {
+            const record = data[key];
+            const card = document.createElement('div');
+            card.className = 'badge-card';
+
+            card.innerHTML = `
+              <div class="badge-top">
+                <div class="badge-flag-name">
+                  <span>📧</span>
+                  <span>${record.domain || 'EMAIL'}</span>
+                </div>
+              </div>
+              <div class="badge-title">${record.email}</div>
+              <div class="badge-provider email-tag">Mail Account</div>
+            `;
+
+            card.onclick = () => handleItemClick('shared_emails', key, record.email, card);
+            grid.appendChild(card);
+          });
+        } else {
+          resultSection.style.display = 'none';
+          welcomeScreen.style.display = 'block';
+          document.getElementById('statRemainingEmail').textContent = '0';
+        }
+      });
+    }
+
+    function handleItemClick(collectionName, key, textToCopy, element) {
+      copyText(textToCopy);
+      if (element) element.classList.add('removing');
+      if (db && collectionName && key) {
+        remove(ref(db, `${collectionName}/${key}`)).catch(e => console.error("Remove error:", e));
+      }
+    }
+
+    window.copyText = function(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => showToast(`Copied: ${text}`));
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast(`Copied: ${text}`);
+      }
+    };
+
+    let pendingConfirmCallback = null;
+
+    window.openConfirmModal = function(title, message, callback) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalDesc').textContent = message;
+      pendingConfirmCallback = callback;
+      document.getElementById('confirmModal').classList.add('active');
+    };
+
+    window.closeConfirmModal = function() {
+      document.getElementById('confirmModal').classList.remove('active');
+      pendingConfirmCallback = null;
+    };
+
+    window.executeConfirmModalAction = function() {
+      if (pendingConfirmCallback) pendingConfirmCallback();
+      closeConfirmModal();
+    };
+
+    window.deleteCategoryItems = function(catName, itemKeys) {
+      openConfirmModal(
+        `Delete Category "${catName}"?`,
+        `Are you sure you want to delete "${catName}" and all ${itemKeys.length} items?`,
+        () => {
+          const promises = itemKeys.map(k => remove(ref(db, `shared_numbers/${k}`)));
+          Promise.all(promises).then(() => {
+            if (selectedCategoryKey === catName) selectedCategoryKey = 'ALL';
+            showToast(`Category "${catName}" removed!`);
+          });
+        }
+      );
+    };
+
+    window.clearEntirePhoneDatabase = function() {
+      openConfirmModal(
+        'Clear All Numbers?',
+        'Are you sure you want to delete all phone numbers and categories?',
+        () => {
+          remove(dbRefPhone).then(() => {
+            showToast('All Numbers cleared!', true);
+          });
+        }
+      );
+    };
+
+    window.clearEntireEmailDatabase = function() {
+      openConfirmModal(
+        'Clear Email Database?',
+        'Are you sure you want to delete all saved emails?',
+        () => {
+          remove(dbRefEmail).then(() => {
+            showToast('Email Database cleared!', true);
+          });
+        }
+      );
+    };
+
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.innerHTML = isError ? `✕ &nbsp; ${msg}` : `✓ &nbsp; ${msg}`;
+      toast.style.background = isError ? 'rgba(255, 59, 48, 0.15)' : 'rgba(255, 255, 255, 0.1)';
+      toast.style.borderColor = isError ? 'rgba(255, 59, 48, 0.3)' : 'var(--glass-border)';
+      toast.style.color = isError ? '#ff453a' : '#fff';
+      toast.classList.add('show');
+      setTimeout(() => { toast.classList.remove('show'); }, 1800);
+    }
+
+    window.switchTab = function(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      if (tabName === 'phone') {
+        document.getElementById('tabBtnPhone').classList.add('active');
+        document.getElementById('tabPhone').classList.add('active');
+      } else {
+        document.getElementById('tabBtnEmail').classList.add('active');
+        document.getElementById('tabEmail').classList.add('active');
+      }
+    };
+
+    window.setCategorySuggestion = function(name) {
+      const input = document.getElementById('customCatPhone');
+      if (input.value === name) {
+        input.value = '';
+      } else {
+        input.value = name;
+      }
+      updateSuggestionChipActiveState();
+    };
+
+    window.updateSuggestionChipActiveState = function() {
+      const val = document.getElementById('customCatPhone')?.value.trim() || '';
+      document.querySelectorAll('.suggestion-chip').forEach(chip => {
+        if (chip.getAttribute('data-name') === val) {
+          chip.classList.add('active');
+        } else {
+          chip.classList.remove('active');
+        }
+      });
+    };
+
+    // Initialize local Gmail backend on page load.
+    window.addEventListener('load', function() {
+      initializeLocalGmail();
+      renderCompactGmailFeed();
+    });
+  </script>
+
+<style id="compact-laptop-fonts">
+  html { font-size: 14px; }
+  body { font-size: 12px !important; }
+  h1 { font-size: 20px !important; }
+  h2 { font-size: 17px !important; }
+  h3 { font-size: 14px !important; }
+  button, input, select, textarea { font-size: 11px !important; }
+  .subtitle { font-size: 11px !important; }
+  .tab-btn { font-size: 11px !important; padding: 8px 12px !important; }
+  .gmail-sync-box, .gmail-input, .gmail-feed-controls, .compact-live-card { font-size: 11px !important; }
+  .compact-live-card { padding: 7px 9px !important; }
+  .result-header, .welcome-screen p, .suggestion-label, .suggestion-chip { font-size: 10px !important; }
+  .welcome-screen h2 { font-size: 16px !important; }
+</style>
+<script>
+/* POWER_EARN_AUTO_SESSION_REPAIR */
+(function () {
+    const _fetch = window.fetch.bind(window);
+    window.fetch = async function (input, init) {
+        const url = typeof input === "string" ? input : (input && input.url) || "";
+        const local = url.indexOf("http://127.0.0.1:5000") === 0;
+        const hasSid = local && url.indexOf("session_id=") !== -1;
+
+        const response = await _fetch(input, init);
+        if (!hasSid || response.status !== 401) return response;
+
+        try {
+            const body = await response.clone().text();
+            if (!/invalid session/i.test(body)) return response;
+
+            localStorage.removeItem("powerEarnOtpSessionId");
+            const repair = await _fetch(
+                "http://127.0.0.1:5000/api/session/ensure",
+                {cache: "no-store"}
+            );
+            const data = await repair.json();
+
+            if (data && data.session_id) {
+                localStorage.setItem("powerEarnOtpSessionId", data.session_id);
+                if (typeof otpSessionId !== "undefined") otpSessionId = data.session_id;
+
+                const retryUrl = url.replace(
+                    /([?&]session_id=)[^&]*/,
+                    "$1" + encodeURIComponent(data.session_id)
+                );
+                return _fetch(retryUrl, init);
+            }
+        } catch (e) {
+            console.warn("Automatic session repair failed:", e);
+        }
+        return response;
+    };
+})();
+</script>
+
+</head>
+<body>
+
+  <div class="container">
+    <div class="header-navigation">
+      <h1>Power Earn Universal Manager</h1>
+    </div>
+    <p class="subtitle">Cloud Synchronization System &bull; Apple Liquid Glass UI</p>
+
+    <!-- Tab Switching Buttons -->
+    <div class="tab-group">
+      <button class="tab-btn active" id="tabBtnPhone" onclick="switchTab('phone')">📱 Numbers & IPRN</button>
+      <button class="tab-btn" id="tabBtnEmail" onclick="switchTab('email')">📧 Email Manager</button>
+    </div>
+
+    <!-- Phone Number Tab Content -->
+    <div class="tab-content active" id="tabPhone">
+      <input type="text" id="customCatPhone" class="custom-input" list="categorySuggestions" placeholder="Custom Category Name (Optional - select below or type)" oninput="updateSuggestionChipActiveState()" />
+
+      <datalist id="categorySuggestions">
+        <option value="WhatsApp"><option value="Telegram"><option value="Facebook"><option value="Instagram">
+        <option value="Tiktok"><option value="Snapchat"><option value="IMO"><option value="Twitter">
+        <option value="Google"><option value="Binance"><option value="Bybit"><option value="KuCoin">
+        <option value="Intra Mirror"><option value="CoinW"><option value="Bitmart"><option value="Casino">
+        <option value="Rejsebillet"><option value="Netflix"><option value="Tinder"><option value="Discord">
+        <option value="Viber"><option value="Line"><option value="Amazon"><option value="PayPal">
+      </datalist>
+
+      <div class="suggestion-wrapper">
+        <span class="suggestion-label">💡 Suggestions (Click to select):</span>
+        <span class="suggestion-chip" data-name="WhatsApp" onclick="setCategorySuggestion('WhatsApp')"><img src="https://www.google.com/s2/favicons?domain=whatsapp.com&sz=64" alt=""> WhatsApp</span>
+        <span class="suggestion-chip" data-name="Telegram" onclick="setCategorySuggestion('Telegram')"><img src="https://www.google.com/s2/favicons?domain=telegram.org&sz=64" alt=""> Telegram</span>
+        <span class="suggestion-chip" data-name="Facebook" onclick="setCategorySuggestion('Facebook')"><img src="https://www.google.com/s2/favicons?domain=facebook.com&sz=64" alt=""> Facebook</span>
+        <span class="suggestion-chip" data-name="Instagram" onclick="setCategorySuggestion('Instagram')"><img src="https://www.google.com/s2/favicons?domain=instagram.com&sz=64" alt=""> Instagram</span>
+        <span class="suggestion-chip" data-name="Tiktok" onclick="setCategorySuggestion('Tiktok')"><img src="https://www.google.com/s2/favicons?domain=tiktok.com&sz=64" alt=""> Tiktok</span>
+        <span class="suggestion-chip" data-name="Snapchat" onclick="setCategorySuggestion('Snapchat')"><img src="https://www.google.com/s2/favicons?domain=snapchat.com&sz=64" alt=""> Snapchat</span>
+        <span class="suggestion-chip" data-name="IMO" onclick="setCategorySuggestion('IMO')"><img src="https://www.google.com/s2/favicons?domain=imo.im&sz=64" alt=""> IMO</span>
+        <span class="suggestion-chip" data-name="Twitter" onclick="setCategorySuggestion('Twitter')"><img src="https://www.google.com/s2/favicons?domain=x.com&sz=64" alt=""> Twitter</span>
+        <span class="suggestion-chip" data-name="Google" onclick="setCategorySuggestion('Google')"><img src="https://www.google.com/s2/favicons?domain=google.com&sz=64" alt=""> Google</span>
+        <span class="suggestion-chip" data-name="Binance" onclick="setCategorySuggestion('Binance')"><img src="https://www.google.com/s2/favicons?domain=binance.com&sz=64" alt=""> Binance</span>
+        <span class="suggestion-chip" data-name="Bybit" onclick="setCategorySuggestion('Bybit')"><img src="https://www.google.com/s2/favicons?domain=bybit.com&sz=64" alt=""> Bybit</span>
+        <span class="suggestion-chip" data-name="KuCoin" onclick="setCategorySuggestion('KuCoin')"><img src="https://www.google.com/s2/favicons?domain=kucoin.com&sz=64" alt=""> KuCoin</span>
+        <span class="suggestion-chip" data-name="Casino" onclick="setCategorySuggestion('Casino')">🎰 Casino</span>
+      </div>
+
+      <textarea id="rawInputPhone" placeholder="Paste phone numbers here... e.g.,&#10;+2348031234567&#10;+254712345678"></textarea>
+
+      <div class="btn-group">
+        <button class="btn-process" onclick="processAndStoreNumbers()">⚡ Process & Save Numbers</button>
+        <button onclick="clearEntirePhoneDatabase()" class="btn-delete-all">🗑️ Clear Numbers</button>
+      </div>
+
+      <div class="welcome-screen" id="welcomeScreenPhone">
+        <div class="welcome-icon"></div>
+        <h2>No Numbers Loaded</h2>
+        <p>Paste and process data above to stream globally by custom or auto categories.</p>
+      </div>
+
+      <div class="result-section" id="resultSectionPhone">
+        <div class="result-header">
+          Available Numbers: <span id="statRemainingPhone" style="color: var(--apple-blue); font-weight: 600;">0</span> &bull; Select a category to filter
+        </div>
+        <div class="category-pills-wrapper" id="categoryPillsWrapper"></div>
+        <div class="category-container" id="categoryContainer"></div>
+      </div>
+    </div>
+
+    <!-- Email Manager Tab Content -->
+    <div class="tab-content" id="tabEmail">
+
+      <!-- COMPACT GMAIL LIVE WEB SYNC TOOL -->
+      <div class="gmail-sync-box">
+        <div class="gmail-sync-top">
+          <div class="gmail-brand">
+            <span>✉️ Gmail Live Web Sync</span>
+          </div>
+          <div class="gmail-status-badge">
+            <div class="pulse-dot" id="gmailStatusDot"></div>
+            <span id="gmailStatusText">Click Connect Gmail</span>
+          </div>
+        </div>
+
+        <div class="gmail-inputs-row">
+<button class="btn-process-email" style="padding: 8px 14px; font-size: 11px;" onclick="saveAndConnectGmail()">
+            <span id="connectBtnText">🔑 Connect Gmail</span>
+          </button>
+          <button style="padding: 8px 12px; font-size: 11px; color: var(--apple-red); border-color: rgba(255,59,48,0.3);" onclick="logoutGmail()">
+            🗑️ Logout & Delete ID
+          </button>
+        </div>
+
+        <div class="gmail-feed-controls">
+          <span style="font-size: 11px; color: var(--muted);">Live OTP Feed (Sender, Subject, OTP & Timer):</span>
+          <button style="padding: 4px 10px; font-size: 10px; background: rgba(255,255,255,0.05);" onclick="fetchGmailMessages()">
+            🔄 Refresh Feed
+          </button>
+        </div>
+
+        <!-- Compact Live Feed List -->
+        <div class="compact-feed-list" id="compactGmailList">
+          <!-- Dynamic Live Cards Loaded Here -->
+        </div>
+      </div>
+
+      <!-- BULK EMAIL STORAGE SECTION -->
+      <textarea id="rawInputEmail" placeholder="Paste bulk email addresses here... e.g.,&#10;user1@gmail.com&#10;alex@yahoo.com"></textarea>
+
+      <div class="btn-group">
+        <button class="btn-process-email" onclick="processAndStoreEmails()">⚡ Process & Save Emails</button>
+        <button onclick="clearEntireEmailDatabase()" class="btn-delete-all">🗑️ Clear Emails</button>
+      </div>
+
+      <div class="welcome-screen" id="welcomeScreenEmail">
+        <div class="welcome-icon">📧</div>
+        <h2>No Saved Emails</h2>
+        <p>Paste email list above to save and sync with cloud.</p>
+      </div>
+
+      <div class="result-section" id="resultSectionEmail">
+        <div class="result-header">
+          Available Emails: <span id="statRemainingEmail" style="color: var(--apple-green); font-weight: 600;">0</span> &bull; Click card to copy & delete
+        </div>
+        <div class="data-grid" id="emailGrid"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast">📋 Copied to clipboard!</div>
+
+  <!-- PASSWORD PROMPT MODAL FOR OTP UNLOCK -->
+  <div class="modal-overlay" id="passwordModal">
+    <div class="modal-card">
+      <div class="modal-icon">🔐</div>
+      <h3>Enter Password</h3>
+      <p>Enter access password to view & copy OTP codes on this browser.</p>
+      <input type="password" id="otpPasswordInput" class="custom-input" style="text-align: center; font-size: 16px; letter-spacing: 2px;" placeholder="Enter password" onkeydown="if(event.key==='Enter') verifyOtpPassword()" />
+      <div class="modal-actions" style="margin-top: 10px;">
+        <button class="modal-btn cancel" onclick="closePasswordModal()">Cancel</button>
+        <button class="modal-btn confirm-delete" style="background: var(--apple-blue);" onclick="verifyOtpPassword()">Unlock OTP</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERIC CONFIRMATION MODAL -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-card">
+      <div class="modal-icon">⚠️</div>
+      <h3 id="modalTitle">Confirm Action</h3>
+      <p id="modalDesc">Are you sure you want to proceed?</p>
+      <div class="modal-actions">
+        <button class="modal-btn cancel" onclick="closeConfirmModal()">Cancel</button>
+        <button class="modal-btn confirm-delete" onclick="executeConfirmModalAction()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
